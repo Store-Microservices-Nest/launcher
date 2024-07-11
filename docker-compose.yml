@@ -47,6 +47,7 @@ services:
     volumes:
       - ./orders-ms/src:/usr/src/app/src
     command:  npm run start:dev
+    restart: always
     environment:
       - PORT=3002
       - DATABASE_URL=postgresql://postgres:asd.45678@orders-database:5432/ordersdb?schema=public
