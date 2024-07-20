@@ -1,0 +1,93 @@
+version: '3'
+
+services:
+  nats-server:
+    image: nats:latest
+    ports:
+      - 8222:8222
+  client-gateway:
+    image: client-gateway-prod
+    build:
+      context: ./client-gateway
+      dockerfile: dockerfile.prod
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}
+    # volumes:
+    #   - ./client-gateway/src:/usr/src/app/src
+    # command: npm run start:dev
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+  products-ms:
+    image: product-ms-prod
+    build:
+      context: ./product-ms
+      dockerfile: dockerfile.prod
+    ports:
+      - 3001:3001
+    environment:
+      - PORT=3001
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=file:./dev.db
+  # # Orders Database
+  # orders-database:
+  #   container_name: orders-db
+  #   image: postgres:16.2
+  #   restart: always
+  #   volumes:
+  #     - ./orders-ms/postgres:/var/lib/postgresql/data
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=asd.45678
+  #     - POSTGRES_DB=ordersdb
+  # Orders MS
+  orders-ms:
+    image: orders-ms-prod
+    build:
+      context: ./orders-ms
+      dockerfile: dockerfile.prod
+      args:
+        - ORDERS_DATABASE_URL=${ORDERS_DATABASE_URL}
+    environment:
+      - PORT=3002
+      - DATABASE_URL=${ORDERS_DATABASE_URL}
+      - NATS_SERVERS=nats://nats-server:4222
+
+  ## ======================
+  ## Payments Microservice
+  payments-ms:
+    container_name: payments-ms
+    build:
+      context: ./payments-ms
+      dockerfile: dockerfile.prod
+  #   volumes:
+  #     - ./payments-ms/src:/usr/src/app/src
+  #   command: npm run start:dev
+    ports:
+      - ${PAYMENTS_MS_PORT}:${PAYMENTS_MS_PORT}
+    environment:
+      - PAYMENTS_MS_PORT=${PAYMENTS_MS_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+      - STRIPE_SECRET=${STRIPE_SECRET}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+  auth-ms:
+    image: auth-ms-prod
+    container_name: auth-ms
+    build:
+      context: ./auth-ms
+      dockerfile: dockerfile.prod
+    environment:
+      - NATS_SERVERS=nats://nats-server:4222
+      - PORT=3000
+      - DATABASE_URL=${AUTH_DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+
+
+
+
+
+  
