@@ -6,7 +6,7 @@ services:
     ports:
       - 8222:8222
   client-gateway:
-    image: client-gateway-prod
+    image: us-central1-docker.pkg.dev/store-microservices-430114/store-image-registry/client-gateway
     build:
       context: ./client-gateway
       dockerfile: dockerfile.prod
@@ -19,7 +19,7 @@ services:
       - PORT=3000
       - NATS_SERVERS=nats://nats-server:4222
   products-ms:
-    image: product-ms-prod
+    image: us-central1-docker.pkg.dev/store-microservices-430114/store-image-registry/product-ms
     build:
       context: ./product-ms
       dockerfile: dockerfile.prod
@@ -44,7 +44,7 @@ services:
   #     - POSTGRES_DB=ordersdb
   # Orders MS
   orders-ms:
-    image: orders-ms-prod
+    image: us-central1-docker.pkg.dev/store-microservices-430114/store-image-registry/orders-ms
     build:
       context: ./orders-ms
       dockerfile: dockerfile.prod
@@ -59,6 +59,7 @@ services:
   ## Payments Microservice
   payments-ms:
     container_name: payments-ms
+    image: us-central1-docker.pkg.dev/store-microservices-430114/store-image-registry/payments-ms
     build:
       context: ./payments-ms
       dockerfile: dockerfile.prod
@@ -75,7 +76,7 @@ services:
       - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
       - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
   auth-ms:
-    image: auth-ms-prod
+    image: us-central1-docker.pkg.dev/store-microservices-430114/store-image-registry/auth-ms
     container_name: auth-ms
     build:
       context: ./auth-ms
